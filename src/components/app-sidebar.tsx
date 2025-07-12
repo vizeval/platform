@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import * as React from "react";
+import { usePathname } from "next/navigation";
+
 import {
   IconLogs,
   IconDashboard,
@@ -34,27 +37,27 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/",
       icon: IconDashboard,
     },
     {
       title: "Requests",
-      url: "#",
+      url: "/requests",
       icon: IconLogs,
     },
     {
       title: "Evaluators",
-      url: "#",
+      url: "/evaluators",
       icon: IconUsers,
     },
     {
       title: "Prompts",
-      url: "#",
+      url: "/prompts",
       icon: IconTextScan2,
     },
     {
       title: "API Keys",
-      url: "#",
+      url: "/api-keys",
       icon: IconKey,
     },
   ],
@@ -62,18 +65,20 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: IconSettings,
     },
     {
       title: "Get Help",
-      url: "#",
+      url: "/help",
       icon: IconHelp,
     },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -83,19 +88,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <Link href="/">
                 <VizevalIcon className="!size-5" />
                 <span className="text-lg font-semibold font-serif tracking-wide">
                   Vizeval
                 </span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={data.navMain} currentPath={pathname} />
+        <NavSecondary
+          items={data.navSecondary}
+          currentPath={pathname}
+          className="mt-auto"
+        />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
