@@ -1,6 +1,14 @@
-import * as React from "react"
+import * as React from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { IconInfoCircle } from "@tabler/icons-react";
 
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -12,7 +20,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
@@ -25,7 +33,7 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
@@ -35,7 +43,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("leading-none font-semibold", className)}
       {...props}
     />
-  )
+  );
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
@@ -45,7 +53,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("text-muted-foreground text-sm", className)}
       {...props}
     />
-  )
+  );
 }
 
 function CardAction({ className, ...props }: React.ComponentProps<"div">) {
@@ -58,7 +66,22 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
       )}
       {...props}
     />
-  )
+  );
+}
+
+function CardTooltip({ ...props }: React.ComponentProps<"div">) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="col-start-2 row-span-2 row-start-1 self-start justify-self-end">
+            <IconInfoCircle className="size-4" />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent {...props}></TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
 }
 
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {
@@ -68,7 +91,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("px-6", className)}
       {...props}
     />
-  )
+  );
 }
 
 function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
@@ -78,7 +101,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("flex items-center px-6 [.border-t]:pt-6", className)}
       {...props}
     />
-  )
+  );
 }
 
 export {
@@ -88,5 +111,6 @@ export {
   CardTitle,
   CardAction,
   CardDescription,
+  CardTooltip,
   CardContent,
-}
+};

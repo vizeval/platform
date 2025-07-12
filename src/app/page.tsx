@@ -5,7 +5,7 @@ import { SectionCards } from "@/components/section-cards";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ChartAreaInteractive } from "@/components/chart-area-interactive";
 
-import data from "@/mocks/data.json";
+import data from "@/mocks/dashboard-cards.json";
 
 export default function Page() {
   return (
