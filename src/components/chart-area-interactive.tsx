@@ -154,17 +154,30 @@ export function ChartAreaInteractive() {
             <ChartTooltip
               cursor={false}
               defaultIndex={isMobile ? -1 : 10}
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    });
-                  }}
-                  indicator="dot"
-                />
-              }
+              content={({ active, payload, label }) => {
+                if (!active || !payload || !payload.length) return null;
+
+                const orderedPayload = [...payload].sort((a, b) => {
+                  if (a.dataKey === "success") return -1;
+                  if (b.dataKey === "success") return 1;
+                  return 0;
+                });
+
+                return (
+                  <ChartTooltipContent
+                    active={active}
+                    payload={orderedPayload}
+                    label={label}
+                    labelFormatter={(value) => {
+                      return new Date(value).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      });
+                    }}
+                    indicator="dot"
+                  />
+                );
+              }}
             />
             <Area
               dataKey="errors"
