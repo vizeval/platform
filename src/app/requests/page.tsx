@@ -1,7 +1,8 @@
+import data from "@/mocks/dashboard-cards.json";
+import { DataTable } from "@/components/data-table";
+
 export default function Page() {
   return (
-    <div>
-      <h1>Requests</h1>
-    </div>
+    <DataTable data={data} />
   );
 }
