@@ -8,6 +8,7 @@ import {
   IconUsers,
   IconSettings,
   IconTextScan2,
+  IconKey,
 } from "@tabler/icons-react";
 
 import { VizevalIcon } from "@/components/icons/vizaval-icon";
@@ -51,6 +52,11 @@ const data = {
       url: "#",
       icon: IconTextScan2,
     },
+    {
+      title: "API Keys",
+      url: "#",
+      icon: IconKey,
+    },
   ],
 
   navSecondary: [
@@ -79,7 +85,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <a href="#">
                 <VizevalIcon className="!size-5" />
-                <span className="text-base font-semibold">Vizeval</span>
+                <span className="text-lg font-semibold font-serif tracking-wide">
+                  Vizeval
+                </span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
