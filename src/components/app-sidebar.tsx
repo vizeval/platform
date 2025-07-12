@@ -7,16 +7,13 @@ import { usePathname } from "next/navigation";
 import {
   IconLogs,
   IconDashboard,
-  IconHelp,
   IconUsers,
-  IconSettings,
   IconTextScan2,
   IconKey,
 } from "@tabler/icons-react";
 
 import { VizevalIcon } from "@/components/icons/vizaval-icon";
 import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -61,19 +58,6 @@ const data = {
       icon: IconKey,
     },
   ],
-
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "/help",
-      icon: IconHelp,
-    },
-  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -100,11 +84,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} currentPath={pathname} />
-        <NavSecondary
-          items={data.navSecondary}
-          currentPath={pathname}
-          className="mt-auto"
-        />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

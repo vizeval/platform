@@ -20,8 +20,6 @@ export function SiteHeader() {
         return "Prompts";
       case "/api-keys":
         return "API Keys";
-      case "/settings":
-        return "Settings";
       case "/help":
         return "Get Help";
       default:
