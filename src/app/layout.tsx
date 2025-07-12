@@ -20,7 +20,7 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   title: "Vizeval",
-  description: "Vizualize and evaluate your AI workflows.",
+  description: "Visualize and evaluate your AI workflows.",
 };
 
 export default function RootLayout({
