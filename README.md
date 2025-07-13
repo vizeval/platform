@@ -1,36 +1,158 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Vizeval - Plataforma de Avaliação de IA
 
-## Getting Started
+> **Visualize e avalie seus workflows de IA com evaluators especializados**
 
-First, run the development server:
+🌐 **Acesse a plataforma**: [app.vizeval.com](https://app.vizeval.com)
+
+Este projeto foi desenvolvido para o **Hackathon da Adapta** e representa nossa visão ideal da plataforma Vizeval - uma solução completa para monitoramento, avaliação e análise de sistemas de IA em diferentes domínios de conhecimento.
+
+## 🎯 Sobre o Projeto
+
+O Vizeval é uma plataforma que permite visualizar e avaliar workflows de IA através de evaluators especializados. Nossa solução oferece insights detalhados sobre a performance de modelos de linguagem em diferentes contextos, com **foco inicial em medicina** devido à criticidade e complexidade da área da saúde. Planejamos expandir para outras áreas críticas como direito e educação.
+
+## ✨ Funcionalidades
+
+### 📊 Dashboard
+
+- Visão geral dos workflows de IA
+- Métricas de performance em tempo real
+- Gráficos interativos com análise de tendências
+- Cards com estatísticas principais
+
+### 📋 Requests
+
+- Monitoramento de todas as requisições
+- Análise detalhada de latência e performance
+- Histórico completo de interações
+- Filtros avançados por modelo, evaluator e score
+
+### 🤖 Evaluators
+
+Evaluators especializados por área de conhecimento:
+
+- **🏥 Medical**: Avaliação de conteúdo médico, diagnósticos e protocolos de saúde _(Foco inicial - Disponível)_
+- **⚖️ Legal**: Análise de documentos legais e conformidade regulatória _(Planejado para futuro)_
+- **📚 Education**: Avaliação de conteúdo educacional e materiais curriculares _(Planejado para futuro)_
+
+> **🎯 Foco Inicial**: Começamos com o evaluator médico devido à criticidade e complexidade da área da saúde. Os evaluators para outras áreas estão em nosso roadmap de desenvolvimento.
+
+### 🔑 API Keys
+
+- Gerenciamento seguro de chaves de API
+- Controle de acesso granular
+- Monitoramento de uso por chave
+
+## 🛠️ Tecnologias Utilizadas
+
+### Frontend
+
+- **Next.js 15.3.5** - Framework React para produção
+- **React 19** - Biblioteca de interface do usuário
+- **TypeScript** - Tipagem estática
+- **Tailwind CSS 4** - Framework CSS utilitário
+- **shadcn/ui** - Componentes de interface modernos
+
+### Componentes e UI
+
+- **Radix UI** - Primitivos de interface acessíveis
+- **Tabler Icons** - Ícones modernos e consistentes
+- **Recharts** - Gráficos e visualizações interativas
+- **Lucide React** - Ícones adicionais
+
+### Ferramentas e Utilidades
+
+- **TanStack Table** - Tabelas avançadas e performáticas
+- **DND Kit** - Funcionalidades de drag-and-drop
+- **Sonner** - Notificações elegantes
+- **Zod** - Validação de esquemas
+
+## 🚀 Como Usar
+
+### 💻 Instalação Local
+
+#### Pré-requisitos
+
+- Node.js 18+ instalado
+- npm, yarn, pnpm ou bun
+
+#### Instalação
 
 ```bash
+# Clone o repositório
+git clone git@github.com:vizeval/platform.git
+cd platform
+
+# Instale as dependências
+npm install
+# ou
+yarn install
+# ou
+pnpm install
+# ou
+bun install
+```
+
+#### Execução
+
+```bash
+# Inicie o servidor de desenvolvimento
 npm run dev
-# or
+# ou
 yarn dev
-# or
+# ou
 pnpm dev
-# or
+# ou
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000) no seu navegador para ver o resultado.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+#### Build para Produção
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Build do projeto
+npm run build
+npm run start
 
-## Learn More
+# ou
+yarn build
+yarn start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 📚 Estrutura do Projeto
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+platform/
+├── src/
+│   ├── app/                 # Páginas da aplicação (App Router)
+│   │   ├── api-keys/       # Gerenciamento de API Keys
+│   │   ├── evaluators/     # Evaluators especializados
+│   │   ├── requests/       # Monitoramento de requisições
+│   │   └── page.tsx        # Dashboard principal
+│   ├── components/         # Componentes reutilizáveis
+│   │   ├── ui/            # Componentes base do shadcn/ui
+│   │   └── ...            # Componentes específicos
+│   ├── hooks/             # Hooks customizados
+│   ├── lib/               # Utilitários e configurações
+│   └── mocks/             # Dados mockados para demonstração
+├── public/                # Arquivos estáticos
+└── ...                   # Configurações do projeto
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔗 Recursos Adicionais
 
-## Deploy on Vercel
+### API + SDK dos Evaluators
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+O valor principal da nossa solução está na **API e SDK dos evaluators**, que permite:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Integração fácil com sistemas existentes
+- Evaluator médico especializado (foco inicial)
+- Análise avançada de conteúdo médico
+- Métricas detalhadas de qualidade para área da saúde
+- Expansão futura para outras áreas críticas
+
+**🚧 Repositório da API + SDK**: [https://github.com/orgs/vizeval/repositories](https://github.com/orgs/vizeval/repositories)
+
+---
+
+**Desenvolvido com ❤️ para o Hackathon da Adapta**
