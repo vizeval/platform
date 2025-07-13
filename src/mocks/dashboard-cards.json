@@ -1,152 +1,212 @@
 [
   {
-    "id": 1,
-    "request": "What are the main symptoms of type 2 diabetes?",
+    "user_id": "1",
+    "system_prompt": "You're a medical assistant specializing in endocrinology.",
+    "user_prompt": "What are the main symptoms of type 2 diabetes?",
     "response": "The main symptoms of type 2 diabetes include: excessive thirst (polydipsia), frequent urination (polyuria), excessive hunger (polyphagia), unexplained weight loss, fatigue, blurred vision, slow wound healing, frequent infections, and tingling in hands and feet.",
+    "feedback": "Comprehensive and accurate symptom list with proper medical terminology.",
     "model": "gpt-4",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.94,
-    "prompt_id": "diabetes_symptoms_001",
-    "latency": 1247
+    "evaluator": "eval_medical",
+    "score": 0.94,
+    "metadata": {
+      "patient_id": "P001",
+      "complexity": "low"
+    }
   },
   {
-    "id": 2,
-    "request": "How does the human immune system work?",
+    "user_id": "2",
+    "system_prompt": "You're an immunology expert assistant.",
+    "user_prompt": "How does the human immune system work?",
     "response": "The immune system is composed of cells, tissues, and organs that work together to defend the body against invaders. It includes innate immunity (first line of defense) and adaptive immunity (specific response). Main components: leukocytes, antibodies, lymphatic system, bone marrow, and spleen.",
+    "feedback": "Good overview but could expand on cellular mechanisms and immunological memory.",
     "model": "claude-3-opus",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.89,
-    "prompt_id": "immune_system_002",
-    "latency": 1534
+    "evaluator": "eval_medical",
+    "score": 0.89,
+    "metadata": {
+      "patient_id": "P002",
+      "complexity": "medium"
+    }
   },
   {
-    "id": 3,
-    "request": "Explain what arterial hypertension is and its causes",
+    "user_id": "3",
+    "system_prompt": "You're a cardiology medical assistant.",
+    "user_prompt": "Explain what arterial hypertension is and its causes",
     "response": "Hypertension is when blood pressure gets high. It can be caused by salt, fat, not exercising. It's dangerous for the heart.",
+    "feedback": "Too simplistic. Lacks medical precision and misses key pathophysiology concepts.",
     "model": "gpt-3.5-turbo",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.43,
-    "prompt_id": "hypertension_003",
-    "latency": 892
+    "evaluator": "eval_medical",
+    "score": 0.43,
+    "metadata": {
+      "patient_id": "P003",
+      "complexity": "low"
+    }
   },
   {
-    "id": 4,
-    "request": "What are the stages of cancer and how are they classified?",
+    "user_id": "4",
+    "system_prompt": "You're an oncology specialist assistant.",
+    "user_prompt": "What are the stages of cancer and how are they classified?",
     "response": "Cancer is classified into stages using the TNM system: T (tumor size), N (affected lymph nodes), M (metastases). Stages range from 0 to IV. Stage 0: in situ; I: localized; II-III: regional; IV: metastatic. Classification determines prognosis and treatment.",
+    "feedback": "Excellent explanation of TNM staging system with clear progression description.",
     "model": "gpt-4",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.92,
-    "prompt_id": "cancer_staging_004",
-    "latency": 1456
+    "evaluator": "eval_medical",
+    "score": 0.92,
+    "metadata": {
+      "patient_id": "P004",
+      "complexity": "high"
+    }
   },
   {
-    "id": 5,
-    "request": "How is depression diagnosed?",
+    "user_id": "5",
+    "system_prompt": "You're a psychiatric medical assistant.",
+    "user_prompt": "How is depression diagnosed?",
     "response": "Depression is sadness. Doctor asks if you're sad and prescribes medication. It can be caused by life problems.",
+    "feedback": "Severely inadequate. Misses DSM-5 criteria, duration requirements, and diagnostic complexity.",
     "model": "gpt-3.5-turbo",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.28,
-    "prompt_id": "depression_diagnosis_005",
-    "latency": 743
+    "evaluator": "eval_medical",
+    "score": 0.28,
+    "metadata": {
+      "patient_id": "P005",
+      "complexity": "medium"
+    }
   },
   {
-    "id": 6,
-    "request": "Explain the blood coagulation process",
+    "user_id": "6",
+    "system_prompt": "You're a hematology specialist assistant.",
+    "user_prompt": "Explain the blood coagulation process",
     "response": "Blood coagulation is a complex process involving the coagulation cascade with intrinsic and extrinsic pathways. Platelets adhere to the injury site, coagulation factors (I-XIII) are activated sequentially, culminating in the conversion of fibrinogen to fibrin, forming a stable clot.",
+    "feedback": "Outstanding explanation of hemostasis with accurate pathway description.",
     "model": "claude-3-sonnet",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.96,
-    "prompt_id": "blood_coagulation_006",
-    "latency": 1876
+    "evaluator": "eval_medical",
+    "score": 0.96,
+    "metadata": {
+      "patient_id": "P006",
+      "complexity": "high"
+    }
   },
   {
-    "id": 7,
-    "request": "What are the different types of anemia?",
+    "user_id": "7",
+    "system_prompt": "You're a hematology medical assistant.",
+    "user_prompt": "What are the different types of anemia?",
     "response": "Main types: iron deficiency anemia (iron deficiency), megaloblastic (B12/folate deficiency), hemolytic (red blood cell destruction), aplastic (bone marrow failure), sickle cell (genetic), thalassemia (hereditary), anemia of chronic disease. Each type has specific causes and treatments.",
+    "feedback": "Comprehensive classification with etiology. Could benefit from prevalence data.",
     "model": "gpt-4",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.91,
-    "prompt_id": "anemia_types_007",
-    "latency": 1321
+    "evaluator": "eval_medical",
+    "score": 0.91,
+    "metadata": {
+      "patient_id": "P007",
+      "complexity": "medium"
+    }
   },
   {
-    "id": 8,
-    "request": "How does the cardiovascular system work?",
+    "user_id": "8",
+    "system_prompt": "You're a cardiology medical assistant.",
+    "user_prompt": "How does the cardiovascular system work?",
     "response": "The heart beats and sends blood to the body. It has veins and arteries. Blood carries oxygen.",
+    "feedback": "Extremely basic. Lacks detail on cardiac cycle, pressure gradients, and vascular physiology.",
     "model": "gpt-3.5-turbo",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.35,
-    "prompt_id": "cardiovascular_008",
-    "latency": 956
+    "evaluator": "eval_medical",
+    "score": 0.35,
+    "metadata": {
+      "patient_id": "P008",
+      "complexity": "low"
+    }
   },
   {
-    "id": 9,
-    "request": "Explain the mechanism of action of antibiotics",
+    "user_id": "9",
+    "system_prompt": "You're a pharmacology expert assistant.",
+    "user_prompt": "Explain the mechanism of action of antibiotics",
     "response": "Antibiotics work through different mechanisms: inhibition of cell wall synthesis (penicillins, cephalosporins), inhibition of protein synthesis (aminoglycosides, macrolides), inhibition of nucleic acid synthesis (quinolones), alteration of membrane permeability (polymyxins). Each class has a specific spectrum.",
+    "feedback": "Excellent mechanistic breakdown with specific drug class examples.",
     "model": "claude-3-opus",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.93,
-    "prompt_id": "antibiotics_mechanism_009",
-    "latency": 1198
+    "evaluator": "eval_medical",
+    "score": 0.93,
+    "metadata": {
+      "patient_id": "P009",
+      "complexity": "high"
+    }
   },
   {
-    "id": 10,
-    "request": "What are normal vital signs in adults?",
+    "user_id": "10",
+    "system_prompt": "You're a clinical assessment assistant.",
+    "user_prompt": "What are normal vital signs in adults?",
     "response": "Normal vital signs in adults: Blood pressure 120/80 mmHg, heart rate 60-100 bpm, respiratory rate 12-20 breaths/min, temperature 36.1-37.2°C, oxygen saturation >95%. Variations may indicate physiological or pathological changes requiring medical evaluation.",
+    "feedback": "Perfect reference values with appropriate clinical context and interpretation notes.",
     "model": "gpt-4",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.97,
-    "prompt_id": "vital_signs_010",
-    "latency": 1087
+    "evaluator": "eval_medical",
+    "score": 0.97,
+    "metadata": {
+      "patient_id": "P010",
+      "complexity": "low"
+    }
   },
   {
-    "id": 11,
-    "request": "What is pneumonia and how is it treated?",
+    "user_id": "11",
+    "system_prompt": "You're a pulmonology medical assistant.",
+    "user_prompt": "What is pneumonia and how is it treated?",
     "response": "Pneumonia is lung infection. Causes cough and fever. Treated with antibiotics.",
+    "feedback": "Oversimplified. Missing pathogen types, diagnostic criteria, and treatment protocols.",
     "model": "gpt-3.5-turbo",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.31,
-    "prompt_id": "pneumonia_treatment_011",
-    "latency": 621
+    "evaluator": "eval_medical",
+    "score": 0.31,
+    "metadata": {
+      "patient_id": "P011",
+      "complexity": "medium"
+    }
   },
   {
-    "id": 12,
-    "request": "Explain the wound healing process",
+    "user_id": "12",
+    "system_prompt": "You're a wound care specialist assistant.",
+    "user_prompt": "Explain the wound healing process",
     "response": "Wound healing occurs in four phases: hemostasis (clot formation), inflammation (cleaning and defense), proliferation (granulation tissue formation and epithelialization), and remodeling (collagen reorganization). Complex process involving growth factors, specialized cells, and extracellular matrix.",
+    "feedback": "Excellent phase-by-phase breakdown with molecular detail. Very comprehensive.",
     "model": "claude-3-opus",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.95,
-    "prompt_id": "wound_healing_012",
-    "latency": 1456
+    "evaluator": "eval_medical",
+    "score": 0.95,
+    "metadata": {
+      "patient_id": "P012",
+      "complexity": "high"
+    }
   },
   {
-    "id": 13,
-    "request": "What are the risk factors for heart disease?",
+    "user_id": "13",
+    "system_prompt": "You're a preventive medicine assistant.",
+    "user_prompt": "What are the risk factors for heart disease?",
     "response": "Risk factors include: advanced age, male gender, family history, hypertension, diabetes, dyslipidemia, smoking, sedentary lifestyle, obesity, stress, excessive alcohol consumption. Some are modifiable (lifestyle) and others are not (genetics, age). Primary prevention is essential.",
+    "feedback": "Thorough risk factor categorization with modifiable vs non-modifiable distinction.",
     "model": "gpt-4",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.9,
-    "prompt_id": "cardiac_risk_factors_013",
-    "latency": 1289
+    "evaluator": "eval_medical",
+    "score": 0.9,
+    "metadata": {
+      "patient_id": "P013",
+      "complexity": "medium"
+    }
   },
   {
-    "id": 14,
-    "request": "How does food digestion work?",
+    "user_id": "14",
+    "system_prompt": "You're a gastroenterology medical assistant.",
+    "user_prompt": "How does food digestion work?",
     "response": "Digestion begins in the mouth with chewing and saliva. In the stomach, acid breaks down proteins. Intestine absorbs nutrients. Liver helps with digestion.",
+    "feedback": "Basic overview but lacks detail on enzymatic processes and anatomical specificity.",
     "model": "gpt-3.5-turbo",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.42,
-    "prompt_id": "digestion_process_014",
-    "latency": 1034
+    "evaluator": "eval_medical",
+    "score": 0.42,
+    "metadata": {
+      "patient_id": "P014",
+      "complexity": "low"
+    }
   },
   {
-    "id": 15,
-    "request": "Explain the difference between viruses and bacteria",
+    "user_id": "15",
+    "system_prompt": "You're a microbiology expert assistant.",
+    "user_prompt": "Explain the difference between viruses and bacteria",
     "response": "Viruses are obligate intracellular parasites with genetic material (DNA/RNA) surrounded by a protein capsid. Bacteria are unicellular prokaryotic organisms with a cell wall. Viruses replicate only inside host cells, bacteria reproduce independently. Specific treatments: antivirals vs antibiotics.",
+    "feedback": "Clear structural and functional distinctions with therapeutic implications.",
     "model": "claude-3-sonnet",
-    "evaluator_model": "eval_medical",
-    "evaluation_score": 0.94,
-    "prompt_id": "virus_bacteria_difference_015",
-    "latency": 1567
+    "evaluator": "eval_medical",
+    "score": 0.94,
+    "metadata": {
+      "patient_id": "P015",
+      "complexity": "medium"
+    }
   }
 ]

@@ -8,7 +8,6 @@ import {
   IconChevronsLeft,
   IconChevronsRight,
   IconDotsVertical,
-  IconClock,
   IconBrain,
   IconMessage,
   IconCopy,
@@ -72,22 +71,25 @@ import {
 } from "@/components/ui/select";
 
 export const schema = z.object({
-  id: z.number(),
-  request: z.string(),
+  system_prompt: z.string(),
+  user_prompt: z.string(),
   response: z.string(),
-  model: z.string(),
-  evaluator_model: z.string(),
-  evaluation_score: z.number(),
-  prompt_id: z.string(),
-  latency: z.number(),
+  user_id: z.string(),
+  evaluator: z.string(),
+  score: z.number(),
+  feedback: z.string(),
+  metadata: z.object({
+    patient_id: z.string(),
+    complexity: z.string(),
+  }),
 });
 
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
-    accessorKey: "evaluation_score",
+    accessorKey: "score",
     header: () => <div className="text-center">Score</div>,
     cell: ({ row }) => {
-      const score = row.original.evaluation_score;
+      const score = row.original.score;
       const getBadgeClasses = (score: number) => {
         if (score >= 0.8) {
           return "bg-green-100 text-green-700 border-green-200 hover:bg-green-200";
@@ -122,22 +124,38 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     },
     size: 80,
   },
-  {
-    accessorKey: "request",
-    header: () => <div className="text-left">Request</div>,
-    cell: ({ row }) => {
-      return (
-        <div className="min-w-0 pr-4 h-8 flex items-center max-w-xs">
-          <div className="flex items-center gap-2 w-full min-w-0">
-            <IconMessage className="size-4 flex-shrink-0 text-muted-foreground" />
-            <span className="truncate text-left">{row.original.request}</span>
+      {
+      accessorKey: "system_prompt",
+      header: () => <div className="text-left">System Prompt</div>,
+      cell: ({ row }) => {
+        return (
+          <div className="min-w-0 pr-4 h-8 flex items-center max-w-xs">
+            <div className="flex items-center gap-2 w-full min-w-0">
+              <IconMessage className="size-4 flex-shrink-0 text-muted-foreground" />
+              <span className="truncate text-left">{row.original.system_prompt}</span>
+            </div>
           </div>
-        </div>
-      );
+        );
+      },
+      enableHiding: false,
+      size: 280,
     },
-    enableHiding: false,
-    size: 280,
-  },
+    {
+      accessorKey: "user_prompt",
+      header: () => <div className="text-left">User Prompt</div>,
+      cell: ({ row }) => {
+        return (
+          <div className="min-w-0 pr-4 h-8 flex items-center max-w-xs">
+            <div className="flex items-center gap-2 w-full min-w-0">
+              <IconMessage className="size-4 flex-shrink-0 text-muted-foreground" />
+              <span className="truncate text-left">{row.original.user_prompt}</span>
+            </div>
+          </div>
+        );
+      },
+      enableHiding: false,
+      size: 280,
+    },
   {
     accessorKey: "response",
     header: () => <div className="text-left">Response</div>,
@@ -151,43 +169,46 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     size: 240,
   },
   {
-    accessorKey: "model",
-    header: "Model",
+    accessorKey: "evaluator",
+    header: "Evaluator",
     cell: ({ row }) => (
       <Badge variant="outline" className="text-muted-foreground px-2">
         <IconBrain className="mr-1 size-3" />
-        {row.original.model}
+        {row.original.evaluator}
       </Badge>
     ),
   },
-  {
-    accessorKey: "evaluator_model",
-    header: "Evaluator Model",
-    cell: ({ row }) => (
-      <Badge variant="secondary" className="text-muted-foreground px-2">
-        <IconBrain className="mr-1 size-3" />
-        {row.original.evaluator_model}
-      </Badge>
-    ),
-  },
-  {
-    accessorKey: "prompt_id",
-    header: "Prompt ID",
-    cell: ({ row }) => (
-      <div className="font-mono text-sm text-muted-foreground">
-        {row.original.prompt_id}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "latency",
-    header: () => <div className="text-right">Latency</div>,
-    cell: ({ row }) => (
-      <div className="text-left">
-        <span className="text-sm">{row.original.latency}ms</span>
-      </div>
-    ),
-  },
+      {
+      accessorKey: "feedback",
+      header: "Feedback",
+      cell: ({ row }) => (
+        <div className="max-w-xs pr-4 h-8 flex items-center">
+          <span className="text-sm text-muted-foreground truncate">
+            {row.original.feedback}
+          </span>
+        </div>
+      ),
+    },
+      {
+      accessorFn: (row) => row.metadata.patient_id,
+      id: "patient_id",
+      header: "Patient ID",
+      cell: ({ row }) => (
+        <div className="font-mono text-sm text-muted-foreground">
+          {row.original.metadata.patient_id}
+        </div>
+      ),
+    },
+         {
+      accessorFn: (row) => row.metadata.complexity,
+      id: "complexity",
+      header: "Complexity",
+      cell: ({ row }) => (
+        <Badge variant="outline" className="text-muted-foreground px-2">
+          {row.original.metadata.complexity}
+        </Badge>
+      ),
+    },
   {
     id: "actions",
     cell: () => (
@@ -255,18 +276,9 @@ function ClickableRow({
             <div className="flex items-center gap-2">
               <IconBrain className="size-4 text-muted-foreground" />
               <div>
-                <div className="font-medium">Model</div>
+                <div className="font-medium">Evaluator</div>
                 <div className="text-muted-foreground">
-                  {row.original.model}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <IconBrain className="size-4 text-muted-foreground" />
-              <div>
-                <div className="font-medium">Evaluator Model</div>
-                <div className="text-muted-foreground">
-                  {row.original.evaluator_model}
+                  {row.original.evaluator}
                 </div>
               </div>
             </div>
@@ -275,33 +287,32 @@ function ClickableRow({
               <div className="font-medium">Score</div>
               <Badge
                 className={`${
-                  row.original.evaluation_score >= 0.8
+                  row.original.score >= 0.8
                     ? "bg-green-100 text-green-700 border-green-200"
-                    : row.original.evaluation_score >= 0.6
+                    : row.original.score >= 0.6
                     ? "bg-yellow-100 text-yellow-700 border-yellow-200"
                     : "bg-orange-100 text-orange-700 border-orange-200"
                 }`}
               >
-                {(row.original.evaluation_score * 100).toFixed(1)}%
+                {(row.original.score * 100).toFixed(1)}%
               </Badge>
             </div>
           </div>
 
           <div className="flex w-full justify-between">
             <div className="flex items-center gap-2">
-              <IconClock className="size-4 text-muted-foreground" />
               <div>
-                <div className="font-medium">Latency</div>
-                <div className="text-muted-foreground">
-                  {row.original.latency}ms
+                <div className="font-medium">Patient ID</div>
+                <div className="text-muted-foreground font-mono text-xs">
+                  {row.original.metadata.patient_id}
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <div>
-                <div className="font-medium">Prompt ID</div>
-                <div className="text-muted-foreground font-mono text-xs">
-                  {row.original.prompt_id}
+                <div className="font-medium">Complexity</div>
+                <div className="text-muted-foreground">
+                  {row.original.metadata.complexity}
                 </div>
               </div>
             </div>
@@ -311,20 +322,38 @@ function ClickableRow({
 
           <div className="space-y-4">
             <div>
-              <div className="font-medium mb-2">Request</div>
+              <div className="font-medium mb-2">System Prompt</div>
               <div className="relative bg-muted p-3 rounded-md text-sm max-h-40 overflow-y-auto group">
                 <Button
                   variant="ghost"
                   size="icon"
                   className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity bg-background hover:bg-background/90 cursor-pointer"
                   onClick={() => {
-                    navigator.clipboard.writeText(row.original.request);
-                    toast.success("Request copied!");
+                    navigator.clipboard.writeText(row.original.system_prompt);
+                    toast.success("System prompt copied!");
                   }}
                 >
                   <IconCopy className="h-3 w-3" />
                 </Button>
-                {row.original.request}
+                {row.original.system_prompt}
+              </div>
+            </div>
+
+            <div>
+              <div className="font-medium mb-2">User Prompt</div>
+              <div className="relative bg-muted p-3 rounded-md text-sm max-h-40 overflow-y-auto group">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity bg-background hover:bg-background/90 cursor-pointer"
+                  onClick={() => {
+                    navigator.clipboard.writeText(row.original.user_prompt);
+                    toast.success("User prompt copied!");
+                  }}
+                >
+                  <IconCopy className="h-3 w-3" />
+                </Button>
+                {row.original.user_prompt}
               </div>
             </div>
 
@@ -343,6 +372,24 @@ function ClickableRow({
                   <IconCopy className="h-3 w-3" />
                 </Button>
                 {row.original.response}
+              </div>
+            </div>
+
+            <div>
+              <div className="font-medium mb-2">Feedback</div>
+              <div className="relative bg-muted p-3 rounded-md text-sm max-h-40 overflow-y-auto group">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity bg-background hover:bg-background/90 cursor-pointer"
+                  onClick={() => {
+                    navigator.clipboard.writeText(row.original.feedback);
+                    toast.success("Feedback copied!");
+                  }}
+                >
+                  <IconCopy className="h-3 w-3" />
+                </Button>
+                {row.original.feedback}
               </div>
             </div>
           </div>
@@ -378,7 +425,7 @@ export function DataTable({ data }: { data: z.infer<typeof schema>[] }) {
       columnFilters,
       pagination,
     },
-    getRowId: (row) => row.id.toString(),
+    getRowId: (row, index) => `${row.user_id}_${index}`,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
@@ -408,27 +455,29 @@ export function DataTable({ data }: { data: z.infer<typeof schema>[] }) {
         break;
       case "csv":
         const headers = [
-          "ID",
-          "Request",
+          "User ID",
+          "System Prompt",
+          "User Prompt",
           "Response",
-          "Model",
-          "Evaluator Model",
+          "Evaluator",
+          "Feedback",
           "Score",
-          "Prompt ID",
-          "Latency",
+          "Patient ID",
+          "Complexity",
         ];
         const csvRows = [
           headers.join(","),
           ...filteredData.map((row) =>
             [
-              row.id,
-              `"${row.request.replace(/"/g, '""')}"`,
+              row.user_id,
+              `"${row.system_prompt.replace(/"/g, '""')}"`,
+              `"${row.user_prompt.replace(/"/g, '""')}"`,
               `"${row.response.replace(/"/g, '""')}"`,
-              row.model,
-              row.evaluator_model,
-              row.evaluation_score,
-              row.prompt_id,
-              row.latency,
+              row.evaluator,
+              row.feedback,
+              row.score,
+              row.metadata.patient_id,
+              row.metadata.complexity,
             ].join(",")
           ),
         ];
@@ -440,15 +489,15 @@ export function DataTable({ data }: { data: z.infer<typeof schema>[] }) {
         content = filteredData
           .map(
             (row) =>
-              `ID: ${row.id}\nRequest: ${row.request}\nResponse: ${
+              `User ID: ${row.user_id}\nSystem Prompt: ${row.system_prompt}\nUser Prompt: ${row.user_prompt}\nResponse: ${
                 row.response
-              }\nModel: ${row.model}\nEvaluator Model: ${
-                row.evaluator_model
-              }\nScore: ${(row.evaluation_score * 100).toFixed(
+              }\nEvaluator: ${row.evaluator}\nFeedback: ${
+                row.feedback
+              }\nScore: ${(row.score * 100).toFixed(
                 1
-              )}%\nPrompt ID: ${row.prompt_id}\nLatency: ${
-                row.latency
-              }ms\n\n---\n\n`
+              )}%\nPatient ID: ${row.metadata.patient_id}\nComplexity: ${
+                row.metadata.complexity
+              }\n\n---\n\n`
           )
           .join("");
         filename = "requests_export.txt";
@@ -474,56 +523,66 @@ export function DataTable({ data }: { data: z.infer<typeof schema>[] }) {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Input
-            placeholder="Filter requests..."
+            placeholder="Filter system prompts..."
             value={
-              (table.getColumn("request")?.getFilterValue() as string) ?? ""
+              (table.getColumn("system_prompt")?.getFilterValue() as string) ?? ""
             }
             onChange={(event) =>
-              table.getColumn("request")?.setFilterValue(event.target.value)
+              table.getColumn("system_prompt")?.setFilterValue(event.target.value)
             }
             className="max-w-xs"
           />
 
           <Input
-            placeholder="Prompt ID..."
+            placeholder="Filter user prompts..."
             value={
-              (table.getColumn("prompt_id")?.getFilterValue() as string) ?? ""
+              (table.getColumn("user_prompt")?.getFilterValue() as string) ?? ""
             }
             onChange={(event) =>
-              table.getColumn("prompt_id")?.setFilterValue(event.target.value)
+              table.getColumn("user_prompt")?.setFilterValue(event.target.value)
+            }
+            className="max-w-xs"
+          />
+
+          <Input
+            placeholder="Patient ID..."
+            value={
+              (table.getColumn("patient_id")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("patient_id")?.setFilterValue(event.target.value)
             }
             className="w-44"
           />
 
           <Select
-            value={(table.getColumn("model")?.getFilterValue() as string) ?? ""}
+            value={(table.getColumn("evaluator")?.getFilterValue() as string) ?? ""}
             onValueChange={(value) =>
               table
-                .getColumn("model")
+                .getColumn("evaluator")
                 ?.setFilterValue(value === "all" ? "" : value)
             }
           >
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="Model" />
+              <SelectValue placeholder="Evaluator" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Models</SelectItem>
-              <SelectItem value="gpt-4">GPT-4</SelectItem>
-              <SelectItem value="gpt-3.5-turbo">GPT-3.5-turbo</SelectItem>
-              <SelectItem value="claude-3-opus">Claude-3-opus</SelectItem>
-              <SelectItem value="claude-3-sonnet">Claude-3-sonnet</SelectItem>
+              <SelectItem value="all">All Evaluators</SelectItem>
+              <SelectItem value="medical">Medical</SelectItem>
+              <SelectItem value="fastval">Fastval</SelectItem>
+              <SelectItem value="gemma_shield">Gemma Shield</SelectItem>
             </SelectContent>
           </Select>
 
           <Select
             value={
               (table
-                .getColumn("evaluation_score")
+                .getColumn("score")
                 ?.getFilterValue() as string) ?? ""
             }
             onValueChange={(value) =>
               table
-                .getColumn("evaluation_score")
+                .getColumn("score")
                 ?.setFilterValue(value === "all" ? "" : value)
             }
           >
