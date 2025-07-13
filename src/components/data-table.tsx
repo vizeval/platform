@@ -12,6 +12,7 @@ import {
   IconClock,
   IconBrain,
   IconMessage,
+  IconCopy,
 } from "@tabler/icons-react";
 import {
   ColumnDef,
@@ -26,8 +27,9 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
-} from "@tanstack/react-table";
-import { z } from "zod";
+  } from "@tanstack/react-table";
+  import { toast } from "sonner";
+  import { z } from "zod";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
@@ -296,17 +298,39 @@ function ClickableRow({
 
           <Separator />
 
-          <div className="space-y-4">
+                    <div className="space-y-4">
             <div>
               <div className="font-medium mb-2">Request</div>
-              <div className="bg-muted p-3 rounded-md text-sm max-h-32 overflow-y-auto">
+              <div className="relative bg-muted p-3 rounded-md text-sm max-h-40 overflow-y-auto group">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity bg-background hover:bg-background/90 cursor-pointer"
+                  onClick={() => {
+                    navigator.clipboard.writeText(row.original.request);
+                    toast.success("Request copied!");
+                  }}
+                >
+                  <IconCopy className="h-3 w-3" />
+                </Button>
                 {row.original.request}
               </div>
             </div>
-
+            
             <div>
               <div className="font-medium mb-2">Response</div>
-              <div className="bg-muted p-3 rounded-md text-sm max-h-64 overflow-y-auto">
+              <div className="relative bg-muted p-3 rounded-md text-sm max-h-60 overflow-y-auto group">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity bg-background hover:bg-background/90 cursor-pointer"
+                  onClick={() => {
+                    navigator.clipboard.writeText(row.original.response);
+                    toast.success("Response copied!");
+                  }}
+                >
+                  <IconCopy className="h-3 w-3" />
+                </Button>
                 {row.original.response}
               </div>
             </div>
