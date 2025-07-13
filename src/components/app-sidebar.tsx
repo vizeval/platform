@@ -4,12 +4,7 @@ import Link from "next/link";
 import * as React from "react";
 import { usePathname } from "next/navigation";
 
-import {
-  IconLogs,
-  IconDashboard,
-  IconUsers,
-  IconKey,
-} from "@tabler/icons-react";
+import { IconLogs, IconDashboard, IconKey } from "@tabler/icons-react";
 
 import { VizevalIcon } from "@/components/icons/vizaval-icon";
 import { NavMain } from "@/components/nav-main";
@@ -40,11 +35,6 @@ const data = {
       title: "Requests",
       url: "/requests",
       icon: IconLogs,
-    },
-    {
-      title: "Evaluators",
-      url: "/evaluators",
-      icon: IconUsers,
     },
     {
       title: "API Keys",
