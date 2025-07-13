@@ -1,39 +1,18 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  type UniqueIdentifier,
-} from "@dnd-kit/core"
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
+import * as React from "react";
 import {
   IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
   IconChevronsLeft,
   IconChevronsRight,
-  IconCircleCheckFilled,
   IconDotsVertical,
-  IconGripVertical,
   IconLayoutColumns,
-  IconLoader,
-  IconPlus,
-  IconTrendingUp,
-} from "@tabler/icons-react"
+  IconClock,
+  IconBrain,
+  IconMessage,
+} from "@tabler/icons-react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -44,25 +23,16 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  Row,
   SortingState,
   useReactTable,
   VisibilityState,
-} from "@tanstack/react-table"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-import { toast } from "sonner"
-import { z } from "zod"
+} from "@tanstack/react-table";
+import { toast } from "sonner";
+import { z } from "zod";
 
-import { useIsMobile } from "@/hooks/use-mobile"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
-import { Checkbox } from "@/components/ui/checkbox"
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerClose,
@@ -72,7 +42,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer"
+} from "@/components/ui/drawer";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -80,17 +50,10 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -98,192 +61,109 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const schema = z.object({
   id: z.number(),
-  header: z.string(),
-  type: z.string(),
-  status: z.string(),
-  target: z.string(),
-  limit: z.string(),
-  reviewer: z.string(),
-})
-
-// Create a separate component for the drag handle
-function DragHandle({ id }: { id: number }) {
-  const { attributes, listeners } = useSortable({
-    id,
-  })
-
-  return (
-    <Button
-      {...attributes}
-      {...listeners}
-      variant="ghost"
-      size="icon"
-      className="text-muted-foreground size-7 hover:bg-transparent"
-    >
-      <IconGripVertical className="text-muted-foreground size-3" />
-      <span className="sr-only">Drag to reorder</span>
-    </Button>
-  )
-}
+  request: z.string(),
+  response: z.string(),
+  model: z.string(),
+  evaluator_model: z.string(),
+  evaluation_score: z.number(),
+  prompt_id: z.string(),
+  latency: z.number(),
+});
 
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
-    id: "drag",
-    header: () => null,
-    cell: ({ row }) => <DragHandle id={row.original.id} />,
-  },
-  {
-    id: "select",
-    header: ({ table }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "header",
-    header: "Header",
+    accessorKey: "request",
+    header: () => <div className="text-left">Request</div>,
     cell: ({ row }) => {
-      return <TableCellViewer item={row.original} />
+      return (
+        <div className="min-w-0 pr-4 h-8 flex items-center max-w-xs">
+          <TableCellViewer item={row.original} />
+        </div>
+      );
     },
     enableHiding: false,
+    size: 280,
   },
   {
-    accessorKey: "type",
-    header: "Section Type",
+    accessorKey: "response",
+    header: () => <div className="text-left">Response</div>,
     cell: ({ row }) => (
-      <div className="w-32">
-        <Badge variant="outline" className="text-muted-foreground px-1.5">
-          {row.original.type}
-        </Badge>
+      <div className="max-w-xs pr-4 h-8 flex items-center">
+        <span className="text-sm text-muted-foreground truncate">
+          {row.original.response}
+        </span>
       </div>
     ),
+    size: 240,
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "model",
+    header: "Model",
     cell: ({ row }) => (
-      <Badge variant="outline" className="text-muted-foreground px-1.5">
-        {row.original.status === "Done" ? (
-          <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
-        ) : (
-          <IconLoader />
-        )}
-        {row.original.status}
+      <Badge variant="outline" className="text-muted-foreground px-2">
+        <IconBrain className="mr-1 size-3" />
+        {row.original.model}
       </Badge>
     ),
   },
   {
-    accessorKey: "target",
-    header: () => <div className="w-full text-right">Target</div>,
+    accessorKey: "evaluator_model",
+    header: "Evaluator Model",
     cell: ({ row }) => (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
-          })
-        }}
-      >
-        <Label htmlFor={`${row.original.id}-target`} className="sr-only">
-          Target
-        </Label>
-        <Input
-          className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
-          defaultValue={row.original.target}
-          id={`${row.original.id}-target`}
-        />
-      </form>
+      <Badge variant="secondary" className="text-muted-foreground px-2">
+        <IconBrain className="mr-1 size-3" />
+        {row.original.evaluator_model}
+      </Badge>
     ),
   },
   {
-    accessorKey: "limit",
-    header: () => <div className="w-full text-right">Limit</div>,
-    cell: ({ row }) => (
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
-          })
-        }}
-      >
-        <Label htmlFor={`${row.original.id}-limit`} className="sr-only">
-          Limit
-        </Label>
-        <Input
-          className="hover:bg-input/30 focus-visible:bg-background dark:hover:bg-input/30 dark:focus-visible:bg-input/30 h-8 w-16 border-transparent bg-transparent text-right shadow-none focus-visible:border dark:bg-transparent"
-          defaultValue={row.original.limit}
-          id={`${row.original.id}-limit`}
-        />
-      </form>
-    ),
-  },
-  {
-    accessorKey: "reviewer",
-    header: "Reviewer",
+    accessorKey: "evaluation_score",
+    header: () => <div className="text-right">Score</div>,
     cell: ({ row }) => {
-      const isAssigned = row.original.reviewer !== "Assign reviewer"
-
-      if (isAssigned) {
-        return row.original.reviewer
-      }
+      const score = row.original.evaluation_score;
+      const variant =
+        score >= 0.8 ? "default" : score >= 0.6 ? "secondary" : "destructive";
 
       return (
-        <>
-          <Label htmlFor={`${row.original.id}-reviewer`} className="sr-only">
-            Reviewer
-          </Label>
-          <Select>
-            <SelectTrigger
-              className="w-38 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-              size="sm"
-              id={`${row.original.id}-reviewer`}
-            >
-              <SelectValue placeholder="Assign reviewer" />
-            </SelectTrigger>
-            <SelectContent align="end">
-              <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-              <SelectItem value="Jamik Tashpulatov">
-                Jamik Tashpulatov
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </>
-      )
+        <div className="text-right">
+          <Badge variant={variant} className="px-2">
+            {(score * 100).toFixed(1)}%
+          </Badge>
+        </div>
+      );
     },
+  },
+  {
+    accessorKey: "prompt_id",
+    header: "Prompt ID",
+    cell: ({ row }) => (
+      <div className="font-mono text-sm text-muted-foreground">
+        {row.original.prompt_id}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "latency",
+    header: () => <div className="text-right">Latency</div>,
+    cell: ({ row }) => (
+      <div className="text-right">
+        <div className="flex items-center justify-end gap-1">
+          <IconClock className="size-3 text-muted-foreground" />
+          <span className="text-sm">{row.original.latency}ms</span>
+        </div>
+      </div>
+    ),
   },
   {
     id: "actions",
@@ -300,70 +180,28 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Make a copy</DropdownMenuItem>
-          <DropdownMenuItem>Favorite</DropdownMenuItem>
+          <DropdownMenuItem>View Details</DropdownMenuItem>
+          <DropdownMenuItem>Copy Request</DropdownMenuItem>
+          <DropdownMenuItem>Copy Response</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     ),
   },
-]
+];
 
-function DraggableRow({ row }: { row: Row<z.infer<typeof schema>> }) {
-  const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.original.id,
-  })
-
-  return (
-    <TableRow
-      data-state={row.getIsSelected() && "selected"}
-      data-dragging={isDragging}
-      ref={setNodeRef}
-      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition: transition,
-      }}
-    >
-      {row.getVisibleCells().map((cell) => (
-        <TableCell key={cell.id}>
-          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-        </TableCell>
-      ))}
-    </TableRow>
-  )
-}
-
-export function DataTable({
-  data: initialData,
-}: {
-  data: z.infer<typeof schema>[]
-}) {
-  const [data, setData] = React.useState(() => initialData)
-  const [rowSelection, setRowSelection] = React.useState({})
+export function DataTable({ data }: { data: z.infer<typeof schema>[] }) {
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+    React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
-  )
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  );
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
-  })
-  const sortableId = React.useId()
-  const sensors = useSensors(
-    useSensor(MouseSensor, {}),
-    useSensor(TouchSensor, {}),
-    useSensor(KeyboardSensor, {})
-  )
-
-  const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }) => id) || [],
-    [data]
-  )
+  });
 
   const table = useReactTable({
     data,
@@ -371,13 +209,10 @@ export function DataTable({
     state: {
       sorting,
       columnVisibility,
-      rowSelection,
       columnFilters,
       pagination,
     },
     getRowId: (row) => row.id.toString(),
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
@@ -388,53 +223,23 @@ export function DataTable({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-  })
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event
-    if (active && over && active.id !== over.id) {
-      setData((data) => {
-        const oldIndex = dataIds.indexOf(active.id)
-        const newIndex = dataIds.indexOf(over.id)
-        return arrayMove(data, oldIndex, newIndex)
-      })
-    }
-  }
+  });
 
   return (
-    <Tabs
-      defaultValue="outline"
-      className="w-full flex-col justify-start gap-6"
-    >
-      <div className="flex items-center justify-between">
-        <Label htmlFor="view-selector" className="sr-only">
-          View
-        </Label>
-        <Select defaultValue="outline">
-          <SelectTrigger
-            className="flex w-fit @4xl/main:hidden"
-            size="sm"
-            id="view-selector"
-          >
-            <SelectValue placeholder="Select a view" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="outline">Outline</SelectItem>
-            <SelectItem value="past-performance">Past Performance</SelectItem>
-            <SelectItem value="key-personnel">Key Personnel</SelectItem>
-            <SelectItem value="focus-documents">Focus Documents</SelectItem>
-          </SelectContent>
-        </Select>
-        <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
-          <TabsTrigger value="outline">Outline</TabsTrigger>
-          <TabsTrigger value="past-performance">
-            Past Performance <Badge variant="secondary">3</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="key-personnel">
-            Key Personnel <Badge variant="secondary">2</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="focus-documents">Focus Documents</TabsTrigger>
-        </TabsList>
+    <div className="w-full flex-col justify-start gap-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder="Filter requests..."
+            value={
+              (table.getColumn("request")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("request")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -463,77 +268,74 @@ export function DataTable({
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {column.id.replace("_", " ")}
                     </DropdownMenuCheckboxItem>
-                  )
+                  );
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm">
-            <IconPlus />
-            <span className="hidden lg:inline">Add Section</span>
-          </Button>
         </div>
       </div>
-      <TabsContent
-        value="outline"
-        className="relative flex flex-col gap-4 overflow-auto "
-      >
+
+      <div className="relative flex flex-col gap-4 overflow-auto">
         <div className="overflow-hidden rounded-lg border">
-          <DndContext
-            collisionDetection={closestCenter}
-            modifiers={[restrictToVerticalAxis]}
-            onDragEnd={handleDragEnd}
-            sensors={sensors}
-            id={sortableId}
-          >
-            <Table>
-              <TableHeader className="bg-muted sticky top-0 z-10">
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                      return (
-                        <TableHead key={header.id} colSpan={header.colSpan}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </TableHead>
-                      )
-                    })}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                {table.getRowModel().rows?.length ? (
-                  <SortableContext
-                    items={dataIds}
-                    strategy={verticalListSortingStrategy}
+          <Table>
+            <TableHeader className="bg-muted sticky top-0 z-10">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead
+                        key={header.id}
+                        colSpan={header.colSpan}
+                        className="text-left align-top py-3"
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className="hover:bg-muted/50"
                   >
-                    {table.getRowModel().rows.map((row) => (
-                      <DraggableRow key={row.id} row={row} />
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="align-middle py-3">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
                     ))}
-                  </SortableContext>
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No results.
-                    </TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </DndContext>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No data found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
         <div className="flex items-center justify-between px-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            Showing {table.getFilteredRowModel().rows.length} result(s).
           </div>
           <div className="flex w-full items-center gap-8 lg:w-fit">
             <div className="hidden items-center gap-2 lg:flex">
@@ -543,7 +345,7 @@ export function DataTable({
               <Select
                 value={`${table.getState().pagination.pageSize}`}
                 onValueChange={(value) => {
-                  table.setPageSize(Number(value))
+                  table.setPageSize(Number(value));
                 }}
               >
                 <SelectTrigger size="sm" className="w-20" id="rows-per-page">
@@ -571,7 +373,7 @@ export function DataTable({
                 onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
               >
-                <span className="sr-only">Go to first page</span>
+                <span className="sr-only">Ir para primeira página</span>
                 <IconChevronsLeft />
               </Button>
               <Button
@@ -581,7 +383,7 @@ export function DataTable({
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
               >
-                <span className="sr-only">Go to previous page</span>
+                <span className="sr-only">Ir para página anterior</span>
                 <IconChevronLeft />
               </Button>
               <Button
@@ -591,7 +393,7 @@ export function DataTable({
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
               >
-                <span className="sr-only">Go to next page</span>
+                <span className="sr-only">Ir para próxima página</span>
                 <IconChevronRight />
               </Button>
               <Button
@@ -601,207 +403,136 @@ export function DataTable({
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 disabled={!table.getCanNextPage()}
               >
-                <span className="sr-only">Go to last page</span>
+                <span className="sr-only">Ir para última página</span>
                 <IconChevronsRight />
               </Button>
             </div>
           </div>
         </div>
-      </TabsContent>
-      <TabsContent
-        value="past-performance"
-        className="flex flex-col px-4 lg:px-6"
-      >
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-      <TabsContent value="key-personnel" className="flex flex-col px-4 lg:px-6">
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-      <TabsContent
-        value="focus-documents"
-        className="flex flex-col px-4 lg:px-6"
-      >
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-    </Tabs>
-  )
+      </div>
+    </div>
+  );
 }
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-]
-
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "var(--primary)",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "var(--primary)",
-  },
-} satisfies ChartConfig
-
 function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
-  const isMobile = useIsMobile()
+  const isMobile = useIsMobile();
 
   return (
     <Drawer direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
-        <Button variant="link" className="text-foreground w-fit px-0 text-left">
-          {item.header}
+        <Button
+          variant="link"
+          className="text-foreground h-8 px-0 text-left justify-start font-normal hover:underline w-full"
+        >
+          <div className="flex items-center gap-2 w-full min-w-0">
+            <IconMessage className="size-4 flex-shrink-0 text-muted-foreground" />
+            <span className="truncate text-left">{item.request}</span>
+          </div>
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="gap-1">
-          <DrawerTitle>{item.header}</DrawerTitle>
+          <DrawerTitle>Detalhes do Request</DrawerTitle>
           <DrawerDescription>
-            Showing total visitors for the last 6 months
+            Visualização completa do request e response da LLM
           </DrawerDescription>
         </DrawerHeader>
-        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          {!isMobile && (
-            <>
-              <ChartContainer config={chartConfig}>
-                <AreaChart
-                  accessibilityLayer
-                  data={chartData}
-                  margin={{
-                    left: 0,
-                    right: 10,
-                  }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                    hide
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dot" />}
-                  />
-                  <Area
-                    dataKey="mobile"
-                    type="natural"
-                    fill="var(--color-mobile)"
-                    fillOpacity={0.6}
-                    stroke="var(--color-mobile)"
-                    stackId="a"
-                  />
-                  <Area
-                    dataKey="desktop"
-                    type="natural"
-                    fill="var(--color-desktop)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-desktop)"
-                    stackId="a"
-                  />
-                </AreaChart>
-              </ChartContainer>
-              <Separator />
-              <div className="grid gap-2">
-                <div className="flex gap-2 leading-none font-medium">
-                  Trending up by 5.2% this month{" "}
-                  <IconTrendingUp className="size-4" />
-                </div>
+        <div className="flex flex-col gap-6 overflow-y-auto px-4 text-sm">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center gap-2">
+              <IconBrain className="size-4 text-muted-foreground" />
+              <div>
+                <div className="font-medium">Model</div>
+                <div className="text-muted-foreground">{item.model}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <IconBrain className="size-4 text-muted-foreground" />
+              <div>
+                <div className="font-medium">Evaluator Model</div>
                 <div className="text-muted-foreground">
-                  Showing total visitors for the last 6 months. This is just
-                  some random text to test the layout. It spans multiple lines
-                  and should wrap around.
+                  {item.evaluator_model}
                 </div>
               </div>
-              <Separator />
-            </>
-          )}
-          <form className="flex flex-col gap-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="header">Header</Label>
-              <Input id="header" defaultValue={item.header} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="type">Type</Label>
-                <Select defaultValue={item.type}>
-                  <SelectTrigger id="type" className="w-full">
-                    <SelectValue placeholder="Select a type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Table of Contents">
-                      Table of Contents
-                    </SelectItem>
-                    <SelectItem value="Executive Summary">
-                      Executive Summary
-                    </SelectItem>
-                    <SelectItem value="Technical Approach">
-                      Technical Approach
-                    </SelectItem>
-                    <SelectItem value="Design">Design</SelectItem>
-                    <SelectItem value="Capabilities">Capabilities</SelectItem>
-                    <SelectItem value="Focus Documents">
-                      Focus Documents
-                    </SelectItem>
-                    <SelectItem value="Narrative">Narrative</SelectItem>
-                    <SelectItem value="Cover Page">Cover Page</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="status">Status</Label>
-                <Select defaultValue={item.status}>
-                  <SelectTrigger id="status" className="w-full">
-                    <SelectValue placeholder="Select a status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Done">Done</SelectItem>
-                    <SelectItem value="In Progress">In Progress</SelectItem>
-                    <SelectItem value="Not Started">Not Started</SelectItem>
-                  </SelectContent>
-                </Select>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="flex items-center gap-2">
+              <div className="text-center">
+                <div className="font-medium">Score</div>
+                <Badge
+                  variant={
+                    item.evaluation_score >= 0.8
+                      ? "default"
+                      : item.evaluation_score >= 0.6
+                      ? "secondary"
+                      : "destructive"
+                  }
+                >
+                  {(item.evaluation_score * 100).toFixed(1)}%
+                </Badge>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="target">Target</Label>
-                <Input id="target" defaultValue={item.target} />
-              </div>
-              <div className="flex flex-col gap-3">
-                <Label htmlFor="limit">Limit</Label>
-                <Input id="limit" defaultValue={item.limit} />
+            <div className="flex items-center gap-2">
+              <IconClock className="size-4 text-muted-foreground" />
+              <div>
+                <div className="font-medium">Latency</div>
+                <div className="text-muted-foreground">{item.latency}ms</div>
               </div>
             </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="reviewer">Reviewer</Label>
-              <Select defaultValue={item.reviewer}>
-                <SelectTrigger id="reviewer" className="w-full">
-                  <SelectValue placeholder="Select a reviewer" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Eddie Lake">Eddie Lake</SelectItem>
-                  <SelectItem value="Jamik Tashpulatov">
-                    Jamik Tashpulatov
-                  </SelectItem>
-                  <SelectItem value="Emily Whalen">Emily Whalen</SelectItem>
-                </SelectContent>
-              </Select>
+            <div>
+              <div className="font-medium">Prompt ID</div>
+              <div className="text-muted-foreground font-mono text-xs">
+                {item.prompt_id}
+              </div>
             </div>
-          </form>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-4">
+            <div>
+              <div className="font-medium mb-2">Request</div>
+              <div className="bg-muted p-3 rounded-md text-sm max-h-32 overflow-y-auto">
+                {item.request}
+              </div>
+            </div>
+
+            <div>
+              <div className="font-medium mb-2">Response</div>
+              <div className="bg-muted p-3 rounded-md text-sm max-h-64 overflow-y-auto">
+                {item.response}
+              </div>
+            </div>
+          </div>
         </div>
         <DrawerFooter>
-          <Button>Submit</Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                navigator.clipboard.writeText(item.request);
+                toast.success("Request copiado!");
+              }}
+            >
+              Copiar Request
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                navigator.clipboard.writeText(item.response);
+                toast.success("Response copiado!");
+              }}
+            >
+              Copiar Response
+            </Button>
+          </div>
           <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
+            <Button variant="outline">Fechar</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  )
+  );
 }
