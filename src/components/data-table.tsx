@@ -8,11 +8,12 @@ import {
   IconChevronsLeft,
   IconChevronsRight,
   IconDotsVertical,
-  IconLayoutColumns,
   IconClock,
   IconBrain,
   IconMessage,
   IconCopy,
+  IconX,
+  IconDownload,
 } from "@tabler/icons-react";
 import {
   ColumnDef,
@@ -27,9 +28,9 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
-  } from "@tanstack/react-table";
-  import { toast } from "sonner";
-  import { z } from "zod";
+} from "@tanstack/react-table";
+import { toast } from "sonner";
+import { z } from "zod";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Badge } from "@/components/ui/badge";
@@ -46,7 +47,6 @@ import {
 } from "@/components/ui/drawer";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
@@ -105,6 +105,20 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
           </Badge>
         </div>
       );
+    },
+    filterFn: (row, columnId, filterValue) => {
+      if (!filterValue) return true;
+      const score = row.getValue(columnId) as number;
+      switch (filterValue) {
+        case "high":
+          return score >= 0.8;
+        case "medium":
+          return score >= 0.6 && score < 0.8;
+        case "low":
+          return score < 0.6;
+        default:
+          return true;
+      }
     },
     size: 80,
   },
@@ -169,11 +183,8 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     accessorKey: "latency",
     header: () => <div className="text-right">Latency</div>,
     cell: ({ row }) => (
-      <div className="text-right">
-        <div className="flex items-center justify-end gap-1">
-          <IconClock className="size-3 text-muted-foreground" />
-          <span className="text-sm">{row.original.latency}ms</span>
-        </div>
+      <div className="text-left">
+        <span className="text-sm">{row.original.latency}ms</span>
       </div>
     ),
   },
@@ -298,7 +309,7 @@ function ClickableRow({
 
           <Separator />
 
-                    <div className="space-y-4">
+          <div className="space-y-4">
             <div>
               <div className="font-medium mb-2">Request</div>
               <div className="relative bg-muted p-3 rounded-md text-sm max-h-40 overflow-y-auto group">
@@ -316,7 +327,7 @@ function ClickableRow({
                 {row.original.request}
               </div>
             </div>
-            
+
             <div>
               <div className="font-medium mb-2">Response</div>
               <div className="relative bg-muted p-3 rounded-md text-sm max-h-60 overflow-y-auto group">
@@ -380,6 +391,84 @@ export function DataTable({ data }: { data: z.infer<typeof schema>[] }) {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
+  const exportData = (format: "json" | "csv" | "txt") => {
+    const filteredData = table
+      .getFilteredRowModel()
+      .rows.map((row) => row.original);
+
+    let content = "";
+    let filename = "";
+    let mimeType = "";
+
+    switch (format) {
+      case "json":
+        content = JSON.stringify(filteredData, null, 2);
+        filename = "requests_export.json";
+        mimeType = "application/json";
+        break;
+      case "csv":
+        const headers = [
+          "ID",
+          "Request",
+          "Response",
+          "Model",
+          "Evaluator Model",
+          "Score",
+          "Prompt ID",
+          "Latency",
+        ];
+        const csvRows = [
+          headers.join(","),
+          ...filteredData.map((row) =>
+            [
+              row.id,
+              `"${row.request.replace(/"/g, '""')}"`,
+              `"${row.response.replace(/"/g, '""')}"`,
+              row.model,
+              row.evaluator_model,
+              row.evaluation_score,
+              row.prompt_id,
+              row.latency,
+            ].join(",")
+          ),
+        ];
+        content = csvRows.join("\n");
+        filename = "requests_export.csv";
+        mimeType = "text/csv";
+        break;
+      case "txt":
+        content = filteredData
+          .map(
+            (row) =>
+              `ID: ${row.id}\nRequest: ${row.request}\nResponse: ${
+                row.response
+              }\nModel: ${row.model}\nEvaluator Model: ${
+                row.evaluator_model
+              }\nScore: ${(row.evaluation_score * 100).toFixed(
+                1
+              )}%\nPrompt ID: ${row.prompt_id}\nLatency: ${
+                row.latency
+              }ms\n\n---\n\n`
+          )
+          .join("");
+        filename = "requests_export.txt";
+        mimeType = "text/plain";
+        break;
+    }
+
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast.success(`Data exported as ${format.toUpperCase()}!`);
+  };
+
   return (
     <div className="w-full flex-col justify-start gap-6">
       <div className="flex items-center justify-between mb-4">
@@ -392,41 +481,106 @@ export function DataTable({ data }: { data: z.infer<typeof schema>[] }) {
             onChange={(event) =>
               table.getColumn("request")?.setFilterValue(event.target.value)
             }
-            className="max-w-sm"
+            className="max-w-xs"
           />
+
+          <Input
+            placeholder="Prompt ID..."
+            value={
+              (table.getColumn("prompt_id")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("prompt_id")?.setFilterValue(event.target.value)
+            }
+            className="w-44"
+          />
+
+          <Select
+            value={(table.getColumn("model")?.getFilterValue() as string) ?? ""}
+            onValueChange={(value) =>
+              table
+                .getColumn("model")
+                ?.setFilterValue(value === "all" ? "" : value)
+            }
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Model" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Models</SelectItem>
+              <SelectItem value="gpt-4">GPT-4</SelectItem>
+              <SelectItem value="gpt-3.5-turbo">GPT-3.5-turbo</SelectItem>
+              <SelectItem value="claude-3-opus">Claude-3-opus</SelectItem>
+              <SelectItem value="claude-3-sonnet">Claude-3-sonnet</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={
+              (table
+                .getColumn("evaluation_score")
+                ?.getFilterValue() as string) ?? ""
+            }
+            onValueChange={(value) =>
+              table
+                .getColumn("evaluation_score")
+                ?.setFilterValue(value === "all" ? "" : value)
+            }
+          >
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Score" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Scores</SelectItem>
+              <SelectItem value="high">High (80%+)</SelectItem>
+              <SelectItem value="medium">Medium (60-80%)</SelectItem>
+              <SelectItem value="low">Low (60%-)</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {table.getState().columnFilters.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                table.resetColumnFilters();
+              }}
+              className="h-8"
+            >
+              <IconX className="h-4 w-4 mr-1" />
+              Clear
+            </Button>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
-                <IconLayoutColumns />
-                <span className="hidden lg:inline">Customize Columns</span>
-                <span className="lg:hidden">Columns</span>
-                <IconChevronDown />
+                <IconDownload className="mr-2 h-4 w-4" />
+                <span className="hidden lg:inline">Export Data</span>
+                <span className="lg:hidden">Export</span>
+                <IconChevronDown className="ml-1 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              {table
-                .getAllColumns()
-                .filter(
-                  (column) =>
-                    typeof column.accessorFn !== "undefined" &&
-                    column.getCanHide()
-                )
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id.replace("_", " ")}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem
+                onClick={() => exportData("json")}
+                className="cursor-pointer"
+              >
+                Export as JSON
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => exportData("csv")}
+                className="cursor-pointer"
+              >
+                Export as CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => exportData("txt")}
+                className="cursor-pointer"
+              >
+                Export as TXT
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
