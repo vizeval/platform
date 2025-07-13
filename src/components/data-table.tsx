@@ -27,7 +27,6 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -83,12 +82,40 @@ export const schema = z.object({
 
 const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
+    accessorKey: "evaluation_score",
+    header: () => <div className="text-center">Score</div>,
+    cell: ({ row }) => {
+      const score = row.original.evaluation_score;
+      const getBadgeClasses = (score: number) => {
+        if (score >= 0.8) {
+          return "bg-green-100 text-green-700 border-green-200 hover:bg-green-200";
+        } else if (score >= 0.6) {
+          return "bg-yellow-100 text-yellow-700 border-yellow-200 hover:bg-yellow-200";
+        } else {
+          return "bg-orange-100 text-orange-700 border-orange-200 hover:bg-orange-200";
+        }
+      };
+
+      return (
+        <div className="text-center">
+          <Badge className={`px-2 ${getBadgeClasses(score)}`}>
+            {(score * 100).toFixed(1)}%
+          </Badge>
+        </div>
+      );
+    },
+    size: 80,
+  },
+  {
     accessorKey: "request",
     header: () => <div className="text-left">Request</div>,
     cell: ({ row }) => {
       return (
         <div className="min-w-0 pr-4 h-8 flex items-center max-w-xs">
-          <TableCellViewer item={row.original} />
+          <div className="flex items-center gap-2 w-full min-w-0">
+            <IconMessage className="size-4 flex-shrink-0 text-muted-foreground" />
+            <span className="truncate text-left">{row.original.request}</span>
+          </div>
         </div>
       );
     },
@@ -128,23 +155,6 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     ),
   },
   {
-    accessorKey: "evaluation_score",
-    header: () => <div className="text-right">Score</div>,
-    cell: ({ row }) => {
-      const score = row.original.evaluation_score;
-      const variant =
-        score >= 0.8 ? "default" : score >= 0.6 ? "secondary" : "destructive";
-
-      return (
-        <div className="text-right">
-          <Badge variant={variant} className="px-2">
-            {(score * 100).toFixed(1)}%
-          </Badge>
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: "prompt_id",
     header: "Prompt ID",
     cell: ({ row }) => (
@@ -174,6 +184,7 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
             variant="ghost"
             className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
             size="icon"
+            onClick={(e) => e.stopPropagation()}
           >
             <IconDotsVertical />
             <span className="sr-only">Open menu</span>
@@ -190,6 +201,126 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     ),
   },
 ];
+
+function ClickableRow({
+  row,
+  children,
+}: {
+  row: {
+    id: string;
+    original: z.infer<typeof schema>;
+    getIsSelected: () => boolean;
+  };
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const isMobile = useIsMobile();
+
+  return (
+    <Drawer
+      open={open}
+      onOpenChange={setOpen}
+      direction={isMobile ? "bottom" : "right"}
+    >
+      <DrawerTrigger asChild>
+        <TableRow
+          data-state={row.getIsSelected() && "selected"}
+          className="hover:bg-muted/50 cursor-pointer"
+        >
+          {children}
+        </TableRow>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader className="gap-1">
+          <DrawerTitle>Request Details</DrawerTitle>
+          <DrawerDescription>
+            Complete view of LLM request and response
+          </DrawerDescription>
+        </DrawerHeader>
+        <div className="flex flex-col gap-6 overflow-y-auto px-4 text-sm">
+          <div className="flex w-full justify-between">
+            <div className="flex items-center gap-2">
+              <IconBrain className="size-4 text-muted-foreground" />
+              <div>
+                <div className="font-medium">Model</div>
+                <div className="text-muted-foreground">
+                  {row.original.model}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <IconBrain className="size-4 text-muted-foreground" />
+              <div>
+                <div className="font-medium">Evaluator Model</div>
+                <div className="text-muted-foreground">
+                  {row.original.evaluator_model}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="font-medium">Score</div>
+              <Badge
+                className={`${
+                  row.original.evaluation_score >= 0.8
+                    ? "bg-green-100 text-green-700 border-green-200"
+                    : row.original.evaluation_score >= 0.6
+                    ? "bg-yellow-100 text-yellow-700 border-yellow-200"
+                    : "bg-orange-100 text-orange-700 border-orange-200"
+                }`}
+              >
+                {(row.original.evaluation_score * 100).toFixed(1)}%
+              </Badge>
+            </div>
+          </div>
+
+          <div className="flex w-full justify-between">
+            <div className="flex items-center gap-2">
+              <IconClock className="size-4 text-muted-foreground" />
+              <div>
+                <div className="font-medium">Latency</div>
+                <div className="text-muted-foreground">
+                  {row.original.latency}ms
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div>
+                <div className="font-medium">Prompt ID</div>
+                <div className="text-muted-foreground font-mono text-xs">
+                  {row.original.prompt_id}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-4">
+            <div>
+              <div className="font-medium mb-2">Request</div>
+              <div className="bg-muted p-3 rounded-md text-sm max-h-32 overflow-y-auto">
+                {row.original.request}
+              </div>
+            </div>
+
+            <div>
+              <div className="font-medium mb-2">Response</div>
+              <div className="bg-muted p-3 rounded-md text-sm max-h-64 overflow-y-auto">
+                {row.original.response}
+              </div>
+            </div>
+          </div>
+        </div>
+        <DrawerFooter>
+          <DrawerClose asChild>
+            <Button variant="outline">Close</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  );
+}
 
 export function DataTable({ data }: { data: z.infer<typeof schema>[] }) {
   const [columnVisibility, setColumnVisibility] =
@@ -305,11 +436,7 @@ export function DataTable({ data }: { data: z.infer<typeof schema>[] }) {
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                    className="hover:bg-muted/50"
-                  >
+                  <ClickableRow key={row.id} row={row}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="align-middle py-3">
                         {flexRender(
@@ -318,7 +445,7 @@ export function DataTable({ data }: { data: z.infer<typeof schema>[] }) {
                         )}
                       </TableCell>
                     ))}
-                  </TableRow>
+                  </ClickableRow>
                 ))
               ) : (
                 <TableRow>
@@ -411,128 +538,5 @@ export function DataTable({ data }: { data: z.infer<typeof schema>[] }) {
         </div>
       </div>
     </div>
-  );
-}
-
-function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
-  const isMobile = useIsMobile();
-
-  return (
-    <Drawer direction={isMobile ? "bottom" : "right"}>
-      <DrawerTrigger asChild>
-        <Button
-          variant="link"
-          className="text-foreground h-8 px-0 text-left justify-start font-normal hover:underline w-full"
-        >
-          <div className="flex items-center gap-2 w-full min-w-0">
-            <IconMessage className="size-4 flex-shrink-0 text-muted-foreground" />
-            <span className="truncate text-left">{item.request}</span>
-          </div>
-        </Button>
-      </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader className="gap-1">
-          <DrawerTitle>Detalhes do Request</DrawerTitle>
-          <DrawerDescription>
-            Visualização completa do request e response da LLM
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className="flex flex-col gap-6 overflow-y-auto px-4 text-sm">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-center gap-2">
-              <IconBrain className="size-4 text-muted-foreground" />
-              <div>
-                <div className="font-medium">Model</div>
-                <div className="text-muted-foreground">{item.model}</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <IconBrain className="size-4 text-muted-foreground" />
-              <div>
-                <div className="font-medium">Evaluator Model</div>
-                <div className="text-muted-foreground">
-                  {item.evaluator_model}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div className="flex items-center gap-2">
-              <div className="text-center">
-                <div className="font-medium">Score</div>
-                <Badge
-                  variant={
-                    item.evaluation_score >= 0.8
-                      ? "default"
-                      : item.evaluation_score >= 0.6
-                      ? "secondary"
-                      : "destructive"
-                  }
-                >
-                  {(item.evaluation_score * 100).toFixed(1)}%
-                </Badge>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <IconClock className="size-4 text-muted-foreground" />
-              <div>
-                <div className="font-medium">Latency</div>
-                <div className="text-muted-foreground">{item.latency}ms</div>
-              </div>
-            </div>
-            <div>
-              <div className="font-medium">Prompt ID</div>
-              <div className="text-muted-foreground font-mono text-xs">
-                {item.prompt_id}
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          <div className="space-y-4">
-            <div>
-              <div className="font-medium mb-2">Request</div>
-              <div className="bg-muted p-3 rounded-md text-sm max-h-32 overflow-y-auto">
-                {item.request}
-              </div>
-            </div>
-
-            <div>
-              <div className="font-medium mb-2">Response</div>
-              <div className="bg-muted p-3 rounded-md text-sm max-h-64 overflow-y-auto">
-                {item.response}
-              </div>
-            </div>
-          </div>
-        </div>
-        <DrawerFooter>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                navigator.clipboard.writeText(item.request);
-                toast.success("Request copiado!");
-              }}
-            >
-              Copiar Request
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                navigator.clipboard.writeText(item.response);
-                toast.success("Response copiado!");
-              }}
-            >
-              Copiar Response
-            </Button>
-          </div>
-          <DrawerClose asChild>
-            <Button variant="outline">Fechar</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
   );
 }
