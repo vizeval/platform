@@ -8,7 +8,6 @@ import {
   IconLogs,
   IconDashboard,
   IconUsers,
-  IconTextScan2,
   IconKey,
 } from "@tabler/icons-react";
 
@@ -46,11 +45,6 @@ const data = {
       title: "Evaluators",
       url: "/evaluators",
       icon: IconUsers,
-    },
-    {
-      title: "Prompts",
-      url: "/prompts",
-      icon: IconTextScan2,
     },
     {
       title: "API Keys",
